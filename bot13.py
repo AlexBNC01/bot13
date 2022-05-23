@@ -14,9 +14,10 @@ sessions = {}
 #day0 = datetime.datetime.today() - datetime.timedelta(days=0)
 
 
-connect = sqlite3.connect ("Zayavka.db", check_same_thread=False)
+connect = sqlite3.connect ("Zayavka1.db", check_same_thread=False)
 cursor = connect.cursor()
 connect.execute("""CREATE TABLE IF NOT EXISTS Clock(
+user_id TEXT,    
 org TEXT,
 name TEXT,
 tech TEXT,
@@ -31,7 +32,9 @@ bot = telebot.TeleBot('5256798982:AAHXhxQyopyvjF3PnQYSKmtTRiIElV3toYc')
 @bot.message_handler(commands=['start'])
 def startorg(message):
     user_id = message.chat.id
-    sessions.update({ user_id: {'first_name': message.from_user.first_name} })
+    org = message.from_user
+    sessions.update({user_id: {'first_name': message.from_user.first_name}})
+    sessions[message.chat.id].update({'org': message.text})
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     btn1 = types.KeyboardButton("Восток")
     btn2 = types.KeyboardButton("Строй инж-г")
@@ -44,13 +47,12 @@ def startorg(message):
     btn9 = types.KeyboardButton("Полистрой")
     btn10 = types.KeyboardButton("Другое")
     markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10)
-    org = [message.text]
     bot.send_message(message.chat.id, text="Привет, {0.first_name}! Выбери организацию".format(message.from_user), reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
 def name(message):
-    data = [message.chat.id]
     if(message.text == "Восток", "Строй инж-г", "Дорожники", "Газинвест", "АСВ", "ТНПС", "Тагазстрой", "База2", "Полистрой", "Другое"):
+        sessions[message.chat.id].update({'name': message.text})   
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton("Айнур")
         btn2 = types.KeyboardButton("Фаниль")
@@ -61,7 +63,8 @@ def name(message):
 @bot.message_handler(content_types=['text'])
 def tech(message):
     if(message.text in ['Айнур', 'Фаниль', 'Дорожники', 'Газинвест', 'АСВ', 'СПК', 'ТНПС', 'Тагазстрой', 'База2', 'Полистрой', 'Другое']):
-        sessions[message.chat.id].update({'objectt': message.text})
+        sessions[message.chat.id].update({'tech': message.text})
+        name = message.from_user
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton("Щетка")
         btn2 = types.KeyboardButton("Кран25")
@@ -81,7 +84,7 @@ def tech(message):
 
 @bot.message_handler(content_types=['text'])
 def day(message):
-    day = [message.chat.id]
+    sessions[message.chat.id].update({'day': message.text})
     if(message.text == "Щетка", "Кран25", "Кран32", "Cat/JCB", "КМУ", "Длинномер", "Самосвал", "Хундай 210", "Catгидро", "210гидро", "liuGong"):
         #sessions[message.chat.id].update({'data': datetime.datetime.today() - datetime.timedelta(days=1)})
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -102,20 +105,17 @@ def day(message):
 
 
 
-@bot.message_handler(content_types=['text'])  #реагирует на любые сообщения
-def test(message):
-    sessions[message.chat.id].update({'hour': message.text})
+#@bot.message_handler(content_types=['text'])  #реагирует на любые сообщения
+#def test(message):
+    #sessions[message.chat.id].update({'hour': message.text})
     
 
 @bot.message_handler(content_types=['text'])          
 def save_link(message):
-    sessions[message.chat.id].update({'gas': message.text})
-    input_data = sessions[message.chat.id]
-
     sessions[message.chat.id].update({'joiningDate': day_time})
     input_data = sessions[message.chat.id]
     print(input_data)
-    cursor.execute("INSERT INTO Clock (org, name, tech, day, joiningDate) VALUES (?, ?, ?, ?, ?);", (message.chat.id, input_data['org'], input_data['name'], input_data['tech'], input_data['day'], input_data['joiningDate']))
+    cursor.execute("INSERT INTO Clock (org, name, tech, day, joiningDate) VALUES (?, ?, ?, ?, ?, ?);", (message.chat.id, input_data['user_id'], input_data['org'], input_data['name'], input_data['tech'], input_data['day'], input_data['joiningDate']))
     connect.commit()
     y_link = message.text
     bot.send_message(message.chat.id, "Сохранил!")
