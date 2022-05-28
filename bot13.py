@@ -2,7 +2,8 @@ import telebot
 from telebot import types # для указание типов
 import sqlite3
 import pytz
-import datetime
+import datetime import time
+import time 
 
 day_time = datetime.datetime.now(pytz.timezone("Europe/Moscow"))
 
