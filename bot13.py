@@ -2,8 +2,8 @@ import telebot
 from telebot import types # для указание типов
 import sqlite3
 import pytz
-import datetime import time
-import time 
+import datetime 
+
 
 day_time = datetime.datetime.now(pytz.timezone("Europe/Moscow"))
 
@@ -30,6 +30,19 @@ connect.commit()
 
 
 bot = telebot.TeleBot('5256798982:AAHXhxQyopyvjF3PnQYSKmtTRiIElV3toYc')
+TO_CHAT_ID = 447436625
+@bot.message_handler(content_types=['text'])
+def all_messages(message):
+    bot.forward_message(TO_CHAT_ID, message.chat.id, message.message_id)
+
+@bot.message_handler(content_types=['text'])
+def text_answer(message):
+    bot.send_message(Ваш id полученный ранее, 'Ваш текст сообщения')
+
+if __name__ == '__main__':
+
+    
+    bot.polling(none_stop=True)
 @bot.message_handler(commands=['start'])
 def startorg(message):
     user_id = message.chat.id
