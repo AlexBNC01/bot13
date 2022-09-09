@@ -1,3 +1,6 @@
+from cgi import test
+from msilib.schema import tables
+from re import T
 import telebot
 from telebot import types # для указание типов
 import sqlite3
@@ -144,3 +147,4 @@ def save_link(message):
 
 
 bot.polling(none_stop=True, interval=0)
+#test commit
